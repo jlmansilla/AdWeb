@@ -15,15 +15,22 @@ let unsubscribe = null
 const showEnrollSuccessToast = ref(false)
 const showEnrollErrorToast = ref(false)
 const enrollErrorMessage = ref('')
+let welcomeToastTimeout = null
 
 // Auto-cerrar el toast de bienvenida después de 3 segundos
 watch(() => authStore.showWelcomeModal, (value) => {
   if (value) {
-    setTimeout(() => {
+    // Limpiar timeout previo si existe
+    if (welcomeToastTimeout) {
+      clearTimeout(welcomeToastTimeout)
+    }
+    // Establecer nuevo timeout
+    welcomeToastTimeout = setTimeout(() => {
       authStore.showWelcomeModal = false
+      welcomeToastTimeout = null
     }, 3000)
   }
-})
+}, { immediate: true })
 
 function handleImageError(event) {
   // Evitar bucle infinito: solo establecer placeholder si no es ya un placeholder
@@ -72,6 +79,10 @@ watch(() => authStore.user, (user) => {
 onUnmounted(() => {
   if (unsubscribe) {
     unsubscribe()
+  }
+  // Limpiar timeout si el componente se desmonta
+  if (welcomeToastTimeout) {
+    clearTimeout(welcomeToastTimeout)
   }
 })
 </script>
