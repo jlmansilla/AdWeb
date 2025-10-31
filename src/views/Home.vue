@@ -150,53 +150,50 @@ onUnmounted(() => {
     </main>
   </div>
 
-  <!-- Toast de éxito - Inscripción -->
-  <div v-if="showEnrollSuccessToast" 
-       class="toast-overlay">
-    <div class="toast-container" 
-         role="alert" 
-         aria-live="polite" 
-         aria-atomic="true">
-      <div class="alert alert-success shadow-2xl">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  <!-- Toasts usando Teleport -->
+  <Teleport to="body">
+    <!-- Toast de éxito - Inscripción -->
+    <Transition name="toast-slide">
+      <div v-if="showEnrollSuccessToast" 
+           class="toast-notification toast-success"
+           role="alert" 
+           aria-live="polite" 
+           aria-atomic="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="font-semibold">¡Inscripción exitosa!</span>
       </div>
-    </div>
-  </div>
+    </Transition>
 
-  <!-- Toast de error - Inscripción -->
-  <div v-if="showEnrollErrorToast" 
-       class="toast-overlay">
-    <div class="toast-container" 
-         role="alert" 
-         aria-live="assertive" 
-         aria-atomic="true">
-      <div class="alert alert-error shadow-2xl">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Toast de error - Inscripción -->
+    <Transition name="toast-slide">
+      <div v-if="showEnrollErrorToast" 
+           class="toast-notification toast-error"
+           role="alert" 
+           aria-live="assertive" 
+           aria-atomic="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="font-semibold">{{ enrollErrorMessage }}</span>
       </div>
-    </div>
-  </div>
+    </Transition>
 
-  <!-- Toast de bienvenida -->
-  <div v-if="authStore.showWelcomeModal" 
-       class="toast-overlay">
-    <div class="toast-container" 
-         role="alert" 
-         aria-live="polite" 
-         aria-atomic="true">
-      <div class="alert alert-info shadow-2xl">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Toast de bienvenida -->
+    <Transition name="toast-slide">
+      <div v-if="authStore.showWelcomeModal" 
+           class="toast-notification toast-info"
+           role="alert" 
+           aria-live="polite" 
+           aria-atomic="true">
+        <svg xmlns="http://www.w3.org/2000/svg" class="shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="font-semibold">¡Bienvenido! Has ingresado correctamente.</span>
       </div>
-    </div>
-  </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -230,62 +227,76 @@ onUnmounted(() => {
 :deep(.container) {
   margin-top: 0 !important;
 }
+</style>
 
-/* Toast overlay con fondo semi-transparente */
-.toast-overlay {
+<style>
+/* Toasts flotantes (global para que funcione con Teleport) */
+.toast-notification {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(2px);
+  top: 5rem;
+  right: 1rem;
   z-index: 9999;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 100px;
-  animation: fadeIn 0.2s ease-out;
-}
-
-.toast-container {
-  animation: slideDown 0.3s ease-out;
-  max-width: 90%;
-  width: auto;
-}
-
-.toast-container .alert {
-  min-width: 300px;
+  align-items: center;
+  gap: 0.75rem;
   padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  min-width: 300px;
+  max-width: 90vw;
+  font-size: 0.95rem;
 }
 
-@keyframes fadeIn {
+.toast-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.toast-error {
+  background-color: #ef4444;
+  color: white;
+}
+
+.toast-info {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Animación slide desde la derecha */
+.toast-slide-enter-active {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.toast-slide-leave-active {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+@keyframes slideInRight {
   from {
+    transform: translateX(100%);
     opacity: 0;
   }
   to {
+    transform: translateX(0);
     opacity: 1;
   }
 }
 
-@keyframes slideDown {
+@keyframes slideOutRight {
   from {
-    transform: translateY(-20px);
-    opacity: 0;
+    transform: translateX(0);
+    opacity: 1;
   }
   to {
-    transform: translateY(0);
-    opacity: 1;
+    transform: translateX(100%);
+    opacity: 0;
   }
 }
 
 @media (min-width: 768px) {
-  .toast-overlay {
-    padding-top: 120px;
-  }
-  
-  .toast-container .alert {
-    min-width: 400px;
+  .toast-notification {
+    min-width: 350px;
+    right: 2rem;
   }
 }
 </style>
