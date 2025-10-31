@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, watch, computed } from 'vue'
+import { onMounted, onUnmounted, watch, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
@@ -10,6 +10,11 @@ const authStore = useAuthStore()
 const coursesStore = useCoursesStore()
 
 let unsubscribe = null
+
+// Toasts
+const showEnrollSuccessToast = ref(false)
+const showEnrollErrorToast = ref(false)
+const enrollErrorMessage = ref('')
 
 function closeWelcomeModal() {
   authStore.showWelcomeModal = false
@@ -33,9 +38,16 @@ async function enroll(course) {
       return
     }
     await coursesStore.enrollInCourse(course.id, authStore.user.uid)
-    alert('Inscripción exitosa')
+    showEnrollSuccessToast.value = true
+    setTimeout(() => {
+      showEnrollSuccessToast.value = false
+    }, 3000)
   } catch (err) {
-    alert(err.message)
+    enrollErrorMessage.value = err.message || 'Ocurrió un error al inscribirte'
+    showEnrollErrorToast.value = true
+    setTimeout(() => {
+      showEnrollErrorToast.value = false
+    }, 3000)
   }
 }
 
@@ -131,6 +143,34 @@ onUnmounted(() => {
         </div>
       </div>
     </main>
+
+    <!-- Toast de éxito - Inscripción -->
+    <div v-if="showEnrollSuccessToast" 
+         role="alert" 
+         aria-live="polite" 
+         aria-atomic="true"
+         class="toast toast-top toast-end">
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>¡Inscripción exitosa!</span>
+      </div>
+    </div>
+
+    <!-- Toast de error - Inscripción -->
+    <div v-if="showEnrollErrorToast" 
+         role="alert" 
+         aria-live="assertive" 
+         aria-atomic="true"
+         class="toast toast-top toast-end">
+      <div class="alert alert-error">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>{{ enrollErrorMessage }}</span>
+      </div>
+    </div>
 
     <div v-if="authStore.showWelcomeModal" 
          role="dialog" 
