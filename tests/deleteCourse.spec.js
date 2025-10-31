@@ -45,7 +45,7 @@ describe('Delete Course E2E Test', () => {
   })
 
   it('should show delete modal when clicking delete button', async () => {
-    const deleteButtons = wrapper.findAll('.btn-secondary')
+    const deleteButtons = wrapper.findAll('.delete-btn')
     
     expect(deleteButtons.length).toBeGreaterThan(0)
     
@@ -77,9 +77,9 @@ describe('Delete Course E2E Test', () => {
     wrapper.vm.openDeleteModal(coursesStore.courses[0])
     await wrapper.vm.$nextTick()
 
-    // Buscar y hacer clic en botón "Sí, borrar"
+    // Buscar y hacer clic en botón "Sí, eliminar"
     const buttons = wrapper.findAll('button')
-    const confirmButton = buttons.find(btn => btn.text().includes('borrar'))
+    const confirmButton = buttons.find(btn => btn.text().includes('eliminar'))
     expect(confirmButton).toBeDefined()
     
     // Simular confirmación
