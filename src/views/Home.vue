@@ -465,21 +465,6 @@ onUnmounted(() => {
     padding: 0.4rem 0.875rem;
   }
 }
-
-/* Asegurar que el navbar tenga altura consistente */
-:deep(.fixed) {
-  height: 80px;
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* Reset adicional para contenedores */
-:deep(.container) {
-  margin-top: 0 !important;
-}
 </style>
 
 <style>
