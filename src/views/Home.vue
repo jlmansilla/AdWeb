@@ -89,13 +89,17 @@ onUnmounted(() => {
 
 <template>
   <div class="home-container">
+    <!-- Fondo con gradiente sutil -->
+    <div class="home-background"></div>
+    
     <NavBar />
     
     <!-- Contenedor principal con espacio fijo -->
     <main class="main-content" role="main" aria-label="Cursos disponibles">
       <div class="container mx-auto px-4 py-4 md:py-6">
-        <div class="mb-6 md:mb-8">
-          <h1 class="text-2xl md:text-3xl font-bold text-center md:text-left">Cursos Disponibles</h1>
+        <div class="mb-6 md:mb-8 page-header">
+          <h1 class="text-3xl md:text-4xl font-bold text-center">Cursos Disponibles</h1>
+          <p class="text-center text-gray-600 mt-2">Descubre y aprende con nuestros cursos</p>
         </div>
 
         <div v-if="coursesStore.loading" 
@@ -115,41 +119,52 @@ onUnmounted(() => {
         </div>
 
         <div v-else 
-             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" 
+             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" 
              role="region" 
              aria-label="Lista de cursos disponibles">
-          <article v-for="course in coursesStore.activeCourses" 
+          <article v-for="(course, index) in coursesStore.activeCourses" 
                    :key="course.id" 
-                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
+                   class="course-card"
+                   :style="{ animationDelay: `${index * 0.1}s` }"
                    role="article"
                    :aria-labelledby="`course-title-${course.id}`">
-            <figure class="bg-base-200 flex items-center justify-center" style="height: 200px; overflow: hidden;">
+            <figure class="course-image-container">
               <img 
                 :src="course.img" 
                 :alt="`Imagen del curso ${course.nombre}`"
-                class="w-full h-full object-cover"
+                class="course-image"
                 loading="lazy"
                 @error="handleImageError"
               />
+              <div class="course-overlay"></div>
             </figure>
-            <div class="card-body text-center p-4">
-              <h2 :id="`course-title-${course.id}`" class="card-title justify-center font-bold text-base md:text-xl uppercase tracking-wide line-clamp-2">
+            <div class="course-body">
+              <h2 :id="`course-title-${course.id}`" class="course-title">
                 {{ course.nombre }}
               </h2>
-              <p class="text-sm md:text-base text-base-content/80 font-medium line-clamp-2">{{ course.descripcion }}</p>
-              <div class="badge badge-primary badge-sm md:badge-lg uppercase" 
+              <p class="course-description">{{ course.descripcion }}</p>
+              <div class="course-badge" 
                    role="status" 
-                   aria-label="Cupos disponibles">
-                {{ course.cupos - course.inscritos }} CUPOS
+                   :aria-label="`${course.cupos - course.inscritos} cupos disponibles`">
+                <svg xmlns="http://www.w3.org/2000/svg" class="badge-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <span>{{ course.cupos - course.inscritos }} CUPOS</span>
               </div>
-              <div class="card-actions justify-center">
+              <div class="course-actions">
                 <button 
                   :aria-label="`Inscribirse en el curso ${course.nombre}`"
-                  class="btn btn-primary btn-sm md:btn-md hover:scale-105 transition-all duration-200 font-semibold uppercase"
+                  class="enroll-button"
+                  :class="{ 'disabled': !authStore.user || (course.cupos - course.inscritos <= 0) || coursesStore.isUserEnrolled(course.id) }"
                   :disabled="!authStore.user || (course.cupos - course.inscritos <= 0) || coursesStore.isUserEnrolled(course.id)"
                   @click="enroll(course)">
                   <span v-if="!authStore.user">Inicia sesión</span>
-                  <span v-else-if="coursesStore.isUserEnrolled(course.id)">Inscrito</span>
+                  <span v-else-if="coursesStore.isUserEnrolled(course.id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="inline h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Inscrito
+                  </span>
                   <span v-else-if="course.cupos - course.inscritos <= 0">Sin cupos</span>
                   <span v-else>Inscribirse</span>
                 </button>
@@ -210,28 +225,255 @@ onUnmounted(() => {
 <style scoped>
 .home-container {
   min-height: 100vh;
-  background-color: hsl(var(--b2));
   position: relative;
+  overflow-x: hidden;
+}
+
+/* Fondo con gradiente sutil animado */
+.home-background {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8edf5 25%, #f0e7ff 50%, #fce7f3 75%, #f5f7fa 100%);
+  background-size: 200% 200%;
+  animation: gradientFlow 20s ease infinite;
+  z-index: 0;
+}
+
+@keyframes gradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .main-content {
-  padding-top: 80px; /* Espacio reducido para móviles */
+  position: relative;
+  z-index: 1;
+  padding-top: 80px;
   padding-bottom: 2rem;
   min-height: calc(100vh - 80px);
 }
 
 @media (min-width: 768px) {
   .main-content {
-    padding-top: 100px; /* Espacio completo para desktop */
+    padding-top: 100px;
     min-height: calc(100vh - 100px);
+  }
+}
+
+/* Header de página */
+.page-header {
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.page-header h1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cards de curso con glassmorphism */
+.course-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.course-card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+}
+
+/* Imagen del curso */
+.course-image-container {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.course-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.course-card:hover .course-image {
+  transform: scale(1.1);
+}
+
+.course-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.course-card:hover .course-overlay {
+  opacity: 1;
+}
+
+/* Cuerpo de la card */
+.course-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.course-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  color: #1f2937;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.course-description {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Badge con gradiente */
+.course-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  margin: 0 auto;
+}
+
+.badge-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Botón de inscripción */
+.enroll-button {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.enroll-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.enroll-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.enroll-button:disabled,
+.enroll-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
+/* Loading state */
+.main-content .loading {
+  display: inline-block;
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .course-card {
+    border-radius: 1rem;
+  }
+
+  .course-body {
+    padding: 1.25rem;
+  }
+
+  .course-title {
+    font-size: 1.1rem;
+  }
+
+  .course-badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.875rem;
   }
 }
 
 /* Asegurar que el navbar tenga altura consistente */
 :deep(.fixed) {
-  height: 80px; /* Altura fija para el navbar */
+  height: 80px;
   display: flex;
   align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* Reset adicional para contenedores */
