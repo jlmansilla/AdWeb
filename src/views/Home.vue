@@ -16,9 +16,14 @@ const showEnrollSuccessToast = ref(false)
 const showEnrollErrorToast = ref(false)
 const enrollErrorMessage = ref('')
 
-function closeWelcomeModal() {
-  authStore.showWelcomeModal = false
-}
+// Auto-cerrar el toast de bienvenida después de 3 segundos
+watch(() => authStore.showWelcomeModal, (value) => {
+  if (value) {
+    setTimeout(() => {
+      authStore.showWelcomeModal = false
+    }, 3000)
+  }
+})
 
 function handleImageError(event) {
   // Evitar bucle infinito: solo establecer placeholder si no es ya un placeholder
@@ -176,21 +181,18 @@ onUnmounted(() => {
       </div>
     </div>
 
+    <!-- Toast de bienvenida -->
     <div v-if="authStore.showWelcomeModal" 
-         role="dialog" 
-         aria-labelledby="modal-title" 
-         aria-describedby="modal-description"
-         aria-modal="true"
-         class="modal modal-open">
-      <div class="modal-box max-w-sm md:max-w-md">
-        <h3 id="modal-title" class="font-bold text-lg md:text-xl">¡Bienvenido!</h3>
-        <p id="modal-description" class="py-4 text-sm md:text-base">Has ingresado correctamente.</p>
-        <div class="modal-action">
-          <button @click="closeWelcomeModal" 
-                  class="btn btn-primary w-full sm:w-auto"
-                  aria-label="Cerrar mensaje de bienvenida">
-            Continuar
-          </button>
+         class="toast-overlay">
+      <div class="toast-container" 
+           role="alert" 
+           aria-live="polite" 
+           aria-atomic="true">
+        <div class="alert alert-info shadow-2xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-semibold">¡Bienvenido! Has ingresado correctamente.</span>
         </div>
       </div>
     </div>

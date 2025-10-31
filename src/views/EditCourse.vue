@@ -199,32 +199,94 @@ async function confirmUpdateCourse() {
 
     <!-- Toast de éxito -->
     <div v-if="showSuccessToast" 
-         role="alert" 
-         aria-live="polite" 
-         aria-atomic="true"
-         class="toast toast-top toast-end">
-      <div class="alert alert-success">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>¡Curso actualizado exitosamente!</span>
+         class="toast-overlay">
+      <div class="toast-container" 
+           role="alert" 
+           aria-live="polite" 
+           aria-atomic="true">
+        <div class="alert alert-success shadow-2xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-semibold">¡Curso actualizado exitosamente!</span>
+        </div>
       </div>
     </div>
 
     <!-- Toast de error -->
     <div v-if="showErrorToast" 
-         role="alert" 
-         aria-live="assertive" 
-         aria-atomic="true"
-         class="toast toast-top toast-end">
-      <div class="alert alert-error">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span>Error al actualizar el curso</span>
+         class="toast-overlay">
+      <div class="toast-container" 
+           role="alert" 
+           aria-live="assertive" 
+           aria-atomic="true">
+        <div class="alert alert-error shadow-2xl">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="font-semibold">Error al actualizar el curso</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* Toast overlay con fondo semi-transparente */
+.toast-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 100px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.toast-container {
+  animation: slideDown 0.3s ease-out;
+  max-width: 90%;
+  width: auto;
+}
+
+.toast-container .alert {
+  min-width: 300px;
+  padding: 1rem 1.5rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .toast-overlay {
+    padding-top: 120px;
+  }
+  
+  .toast-container .alert {
+    min-width: 400px;
+  }
+}
+</style>
