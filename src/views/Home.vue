@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useCoursesStore } from '@/stores/courses'
@@ -26,15 +26,30 @@ function handleImageError(event) {
 }
 
 async function enroll(course) {
-  if (course.cupos - course.inscritos > 0) {
-    await coursesStore.updateCourse(course.id, { inscritos: course.inscritos + 1 })
-  } else {
-    alert('No hay cupos disponibles para este curso.')
+  try {
+    if (!authStore.user) {
+      alert('Debes iniciar sesión para inscribirte.')
+      router.push({ name: 'login', query: { redirect: '/home' } })
+      return
+    }
+    await coursesStore.enrollInCourse(course.id, authStore.user.uid)
+    alert('Inscripción exitosa')
+  } catch (err) {
+    alert(err.message)
   }
 }
 
 onMounted(async () => {
   unsubscribe = coursesStore.subscribeToCourses()
+  if (authStore.user) {
+    coursesStore.subscribeToUserEnrollments(authStore.user.uid)
+  }
+})
+
+watch(() => authStore.user, (user) => {
+  if (user) {
+    coursesStore.subscribeToUserEnrollments(user.uid)
+  }
 })
 
 onUnmounted(() => {
@@ -102,8 +117,13 @@ onUnmounted(() => {
               <div class="card-actions justify-center">
                 <button 
                   :aria-label="`Inscribirse en el curso ${course.nombre}`"
-                  class="btn btn-primary btn-sm md:btn-md hover:scale-105 transition-all duration-200 font-semibold uppercase">
-                  INSCRIBIRSE
+                  class="btn btn-primary btn-sm md:btn-md hover:scale-105 transition-all duration-200 font-semibold uppercase"
+                  :disabled="!authStore.user || (course.cupos - course.inscritos <= 0) || coursesStore.isUserEnrolled(course.id)"
+                  @click="enroll(course)">
+                  <span v-if="!authStore.user">Inicia sesión</span>
+                  <span v-else-if="coursesStore.isUserEnrolled(course.id)">Inscrito</span>
+                  <span v-else-if="course.cupos - course.inscritos <= 0">Sin cupos</span>
+                  <span v-else>Inscribirse</span>
                 </button>
               </div>
             </div>
