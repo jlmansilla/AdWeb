@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Clases personalizadas para mejorar el contraste de inputs */
+.input-enhanced,
+.input.input-bordered.input-enhanced {
+  background-color: white !important;
+  border-color: #9ca3af !important;
+  border-width: 2px !important;
+}
+
+.textarea-enhanced,
+.textarea.textarea-bordered.textarea-enhanced {
+  background-color: white !important;
+  border-color: #9ca3af !important;
+  border-width: 2px !important;
+}
