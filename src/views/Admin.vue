@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCoursesStore } from '@/stores/courses'
+import { agregarCursos } from '@/data/iniciales'
 import NavBar from '@/components/NavBar.vue'
 
 const router = useRouter()
@@ -13,6 +14,8 @@ const courseToDelete = ref(null)
 const showSuccessToast = ref(false)
 const showErrorToast = ref(false)
 const showDeleteSuccessToast = ref(false)
+const showInitToast = ref(false)
+const isInitializing = ref(false)
 
 const newCourse = ref({
   codigo: '',
@@ -119,6 +122,24 @@ async function toggleCourseStatus(course) {
     alert('Error al actualizar el estado: ' + error.message)
   }
 }
+
+async function initializeCourses() {
+  try {
+    isInitializing.value = true
+    await agregarCursos()
+    showInitToast.value = true
+    setTimeout(() => {
+      showInitToast.value = false
+    }, 3000)
+  } catch (error) {
+    showErrorToast.value = true
+    setTimeout(() => {
+      showErrorToast.value = false
+    }, 3000)
+  } finally {
+    isInitializing.value = false
+  }
+}
 </script>
 
 <template>
@@ -128,11 +149,21 @@ async function toggleCourseStatus(course) {
     <main role="main" aria-label="Administración de cursos" class="container mx-auto px-2 md:px-4 pt-20 md:pt-24 pb-4">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-4">
         <h1 class="text-2xl md:text-3xl font-bold">Administración de Cursos</h1>
-        <button @click="openAddModal" 
-                class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto hover:scale-105 hover:shadow-lg transition-all duration-200 font-semibold"
-                aria-label="Agregar un nuevo curso">
-          + Agregar Curso
-        </button>
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <button @click="initializeCourses" 
+                  :disabled="isInitializing"
+                  class="btn btn-secondary btn-sm md:btn-md w-full sm:w-auto hover:scale-105 hover:shadow-lg transition-all duration-200 font-semibold"
+                  :class="{ 'loading': isInitializing }"
+                  aria-label="Cargar cursos iniciales">
+            <span v-if="!isInitializing">📥 Cargar Cursos Iniciales</span>
+            <span v-else>Cargando...</span>
+          </button>
+          <button @click="openAddModal" 
+                  class="btn btn-primary btn-sm md:btn-md w-full sm:w-auto hover:scale-105 hover:shadow-lg transition-all duration-200 font-semibold"
+                  aria-label="Agregar un nuevo curso">
+            + Agregar Curso
+          </button>
+        </div>
       </div>
 
       <!-- Desktop Table -->
@@ -391,6 +422,20 @@ async function toggleCourseStatus(course) {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span>¡Curso eliminado exitosamente!</span>
+      </div>
+    </div>
+
+    <!-- Toast de éxito - Cursos iniciales cargados -->
+    <div v-if="showInitToast" 
+         role="alert" 
+         aria-live="polite" 
+         aria-atomic="true"
+         class="toast toast-top toast-end">
+      <div class="alert alert-success">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>¡Cursos iniciales cargados exitosamente!</span>
       </div>
     </div>
 

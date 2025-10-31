@@ -1,10 +1,7 @@
-// Asumiendo que ya has inicializado Firebase y Firestore
-import { getFirestore, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { db } from '@/firebase';
 
-const db = getFirestore();
 const cursosCollectionRef = collection(db, 'cursos');
-
-let coursesAdded = false;
 
 const cursosParaAgregar = [
   {
@@ -54,13 +51,9 @@ const cursosParaAgregar = [
 ];
 
 // Función exportada para agregar los cursos a Firestore
+// Esta función verifica si los cursos ya existen antes de agregarlos, así que es segura ejecutarla múltiples veces
 export async function agregarCursos() {
-  if (coursesAdded) {
-    console.log("⏭️ Los cursos iniciales ya fueron procesados, omitiendo...");
-    return;
-  }
-  coursesAdded = true;
-  console.log("🔥 Procesando cursos iniciales por primera vez...");
+  console.log("🔥 Procesando cursos iniciales...");
 
   for (const cursoData of cursosParaAgregar) {
     try {
