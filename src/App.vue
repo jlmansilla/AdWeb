@@ -1,17 +1,19 @@
 <script setup>
+import { watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { watchEffect } from 'vue'
 import { agregarCursos } from '@/data/iniciales'
 
 const authStore = useAuthStore()
+let cursosInicializados = false
 
-// Cargar cursos iniciales cuando el usuario esté autenticado
+// Cargar cursos iniciales cuando el usuario esté autenticado (solo una vez)
 // La función agregarCursos() incluye verificación para no duplicar cursos
-watchEffect(async () => {
-  if (authStore.user) {
+watch(() => authStore.user, async (user) => {
+  if (user && !cursosInicializados) {
+    cursosInicializados = true
     await agregarCursos()
   }
-})
+}, { immediate: true })
 </script>
 
 <template>

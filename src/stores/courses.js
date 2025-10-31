@@ -19,18 +19,10 @@ export const useCoursesStore = defineStore('courses', () => {
 
   // Computed
   const activeCourses = computed(() => {
-    const filtered = courses.value.filter(c => {
+    return courses.value.filter(c => {
       // Aceptar true (boolean) o "true" (string) como estado activo
       return c.estado === true || c.estado === "true" || c.estado === 1 || c.estado === "1"
     })
-    console.log(`🔄 activeCourses computed: ${filtered.length} cursos activos de ${courses.value.length} totales`)
-    console.log(`📋 Cursos completos:`, courses.value.map(c => ({
-      nombre: c.nombre,
-      estado: c.estado,
-      tipoEstado: typeof c.estado,
-      codigo: c.codigo
-    })))
-    return filtered
   })
 
   // Suscribirse a cambios en tiempo real con onSnapshot
@@ -50,22 +42,6 @@ export const useCoursesStore = defineStore('courses', () => {
             id: doc.id,
             ...doc.data()
           }))
-          
-          // Diagnóstico: contabilizar cursos por estado
-          const activos = courses.value.filter(c => c.estado === true).length
-          const inactivos = courses.value.filter(c => c.estado === false).length
-          const sinEstado = courses.value.filter(c => c.estado === undefined || c.estado === null).length
-          
-          console.log(`📊 Total cursos cargados: ${courses.value.length}`)
-          console.log(`✅ Activos (estado: true): ${activos}`)
-          console.log(`❌ Inactivos (estado: false): ${inactivos}`)
-          console.log(`⚠️ Sin estado/null: ${sinEstado}`)
-          console.log('📋 Detalle de cursos:', courses.value.map(c => ({ 
-            nombre: c.nombre, 
-            estado: c.estado,
-            codigo: c.codigo,
-            id: c.id
-          })))
           
           loading.value = false
           error.value = null

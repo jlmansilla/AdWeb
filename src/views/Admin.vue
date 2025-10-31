@@ -32,7 +32,13 @@ const newCourse = ref({
 let unsubscribe = null
 
 function handleImageError(event) {
-  event.target.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen'
+  // Evitar bucle infinito: solo establecer placeholder si no es ya un placeholder
+  if (!event.target.src.includes('via.placeholder.com') && !event.target.src.includes('placeholder')) {
+    event.target.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen'
+  } else {
+    // Si el placeholder también falla, ocultar la imagen o usar un fallback local
+    event.target.style.display = 'none'
+  }
 }
 
 onMounted(() => {
